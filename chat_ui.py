@@ -19,8 +19,8 @@ if mensaje:
     st.session_state.historial.append(("Tú", mensaje))
     st.session_state.historial.append(("PorkiBot", respuesta))
 
-# Mostrar historial invertido (lo último aparece primero)
-for emisor, texto in reversed(st.session_state.historial):
+# 🚀 Mostrar historial invertido (el último arriba de todo)
+for emisor, texto in st.session_state.historial[::-1]:
     if emisor == "Tú":
         st.markdown(f"**👤 {emisor}:** {texto}")
     else:
