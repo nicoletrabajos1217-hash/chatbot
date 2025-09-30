@@ -1,57 +1,96 @@
 # chatbot.py
 
-# Preguntas frecuentes
-faq = {
-    "horario": "Nuestro horario de atención es de lunes a viernes de 8:00 a 18:00. Así siempre podrás contactarnos durante el día laboral.",
-    "envios": "Los envíos generalmente tardan entre 3 y 5 días hábiles. Si tu pedido es urgente, podemos ofrecer opciones de entrega express.",
-    "contacto": "Puedes comunicarte con nosotros por correo soporte@empresa.com o llamando al 123-456-7890. ¡Estamos para ayudarte!",
-    "ubicacion": "Nos encontramos en Calle Principal 123, Ciudad Ejemplo. Si deseas, puedo indicarte cómo llegar.",
-    "devoluciones": "Aceptamos devoluciones hasta 30 días después de la compra, asegurando que tengas tiempo suficiente para revisar tu pedido."
-}
+def responder_mensaje(mensaje, estado):
+    mensaje = mensaje.lower().strip()
 
-# Productos
-productos = {
-    "producto sopas": "Nuestra sopa especial se prepara con ingredientes frescos y cuesta 5,000. Perfecta para un almuerzo rápido y delicioso.",
-    "producto camiseta": "Disponemos de camisetas de todas las tallas y colores. Ideales para cualquier ocasión o regalo.",
-    "producto motos": "Ofrecemos una amplia variedad de motos, desde modelos urbanos hasta deportivos. Te puedo ayudar a elegir según tus necesidades.",
-    "producto hamburguesa": "Hamburguesa doble carne por 13,000, con opción de añadir queso extra o vegetales. ¡Una delicia garantizada!",
-    "producto maleta": "Maletas de todas las tallas, resistentes y con garantía. Perfectas para tus viajes personales o profesionales."
-}
+    # 1. Estado inicial: presentación
+    if estado.get("fase") is None:
+        estado["fase"] = "inicio"
+        return "👋 ¡Hola! Soy PorkiBot, tu asistente virtual de atención al cliente. Antes de continuar, ¿me dices tu nombre?"
 
-# Soporte técnico
-soporte_tecnico = {
-    "problema login": "Si no puedes ingresar a tu cuenta, te recomiendo restablecer tu contraseña. Si el problema persiste, puedo guiarte paso a paso.",
-    "error pago": "Para problemas de pago, asegúrate de que los datos de tu tarjeta sean correctos. Si continúa, contacta a nuestro soporte para resolverlo rápidamente.",
-    "problema app": "Si la aplicación presenta errores, prueba cerrarla y abrirla nuevamente o actualizar a la última versión disponible.",
-    "otros": "Por favor describe con detalle tu problema y haré todo lo posible para ofrecerte una solución rápida y efectiva."
-}
+    # 2. Guardar nombre
+    if estado.get("fase") == "inicio":
+        estado["nombre"] = mensaje.capitalize()
+        estado["fase"] = "menu"
+        return f"Encantado de conocerte, {estado['nombre']} 😃.\n\nEstas son mis opciones:\n- Productos\n- Soporte\n- Preguntas frecuentes\n\n👉 Escribe una opción para continuar."
 
-# Función principal para responder
-def responder_mensaje(texto):
-    texto = texto.lower().strip()
+    # 3. Menú principal
+    if estado.get("fase") == "menu":
+        if "producto" in mensaje:
+            estado["fase"] = "productos"
+            return (
+                "📦 ¡Genial! Estos son algunos productos disponibles:\n"
+                "- Sopa\n"
+                "- Camiseta\n"
+                "- Moto\n"
+                "- Hamburguesa\n"
+                "- Maleta\n\n"
+                "👉 Dime cuál te interesa o escribe 'menú' para volver."
+            )
+        elif "soporte" in mensaje:
+            estado["fase"] = "soporte"
+            return (
+                "🛠️ Estás en soporte técnico. ¿Qué problema tienes?\n"
+                "- Problemas de acceso\n"
+                "- Errores en la plataforma\n"
+                "- Otro"
+            )
+        elif "pregunta" in mensaje or "faq" in mensaje:
+            estado["fase"] = "faq"
+            return (
+                "❓ Preguntas frecuentes:\n"
+                "- ¿Cuáles son los horarios de atención?\n"
+                "- ¿Dónde están ubicados?\n"
+                "- ¿Qué medios de pago aceptan?"
+            )
+        else:
+            return "Por favor elige una opción válida: productos, soporte o preguntas frecuentes."
 
-    # Saludos
-    if any(palabra in texto for palabra in ["hola", "buenas", "hi", "hey"]):
-        return "¡Hola! Encantado de saludarte. Soy tu asistente virtual y puedo ayudarte con preguntas sobre nuestros productos, envíos o soporte técnico. ¿Por dónde quieres empezar?"
-    
-    if any(palabra in texto for palabra in ["adiós", "chao", "bye"]):
-        return "¡Hasta luego! Espero haber resuelto tus dudas. Si necesitas algo más, siempre puedes escribirme nuevamente."
+    # 4. Productos
+    if estado.get("fase") == "productos":
+        if "sopa" in mensaje:
+            return "🍲 Nuestras sopas caseras cuestan desde 5,000. Son ideales para un almuerzo rápido y nutritivo."
+        elif "camiseta" in mensaje:
+            return "👕 Tenemos camisetas de todas las tallas en algodón premium. Desde 25,000."
+        elif "moto" in mensaje:
+            return "🏍️ Tenemos motos de baja, media y alta gama. ¿Quieres que te muestre un catálogo?"
+        elif "hamburguesa" in mensaje:
+            return "🍔 Hamburguesas doble carne desde 13,000. Con opción de papas y gaseosa."
+        elif "maleta" in mensaje:
+            return "🎒 Maletas resistentes al agua, desde 40,000. Perfectas para viajes."
+        elif "menú" in mensaje:
+            estado["fase"] = "menu"
+            return "Volvamos al menú principal. 👉 Opciones: **productos, soporte, preguntas frecuentes**."
+        else:
+            return "Puedes pedirme detalles de: sopa, camiseta, moto, hamburguesa o maleta. O escribe 'menú' para volver."
 
-    # Revisar FAQ
-    for clave, respuesta in faq.items():
-        if clave in texto:
-            return respuesta
+    # 5. Soporte
+    if estado.get("fase") == "soporte":
+        if "acceso" in mensaje:
+            return "🔑 Si tienes problemas de acceso, intenta restablecer tu contraseña. ¿Quieres que te guíe?"
+        elif "error" in mensaje:
+            return "⚠️ Si ves un error en la plataforma, prueba cerrar sesión y volver a entrar. Si persiste, contacta soporte técnico."
+        elif "otro" in mensaje:
+            return "Por favor descríbeme tu problema con más detalle."
+        elif "menú" in mensaje:
+            estado["fase"] = "menu"
+            return "Volvemos al menú principal. 👉 Opciones: productos, soporte, preguntas frecuentes."
+        else:
+            return "Indícame si es problema de acceso, error en la plataforma u otro. O escribe 'menú' para regresar."
 
-    # Revisar productos
-    for clave, info in productos.items():
-        if clave in texto:
-            return info
+    # 6. Preguntas frecuentes
+    if estado.get("fase") == "faq":
+        if "horario" in mensaje:
+            return "🕐 Nuestro horario de atención es de lunes a viernes de 8:00 a 18:00."
+        elif "ubic" in mensaje:
+            return "📍 Estamos ubicados en el centro de la ciudad, cerca de la plaza principal."
+        elif "pago" in mensaje:
+            return "💳 Aceptamos pagos en efectivo, tarjeta débito, crédito y transferencias."
+        elif "menú" in mensaje:
+            estado["fase"] = "menu"
+            return "Volvemos al menú principal. 👉 Opciones: productos, soporte, preguntas frecuentes."
+        else:
+            return "Puedes preguntarme por: horarios, ubicación o medios de pago. O escribe 'menú' para volver."
 
-    # Revisar soporte técnico
-    for clave, ayuda in soporte_tecnico.items():
-        if clave in texto:
-            return ayuda
-
-    # Respuesta por defecto creativa
-    return f"Interesante pregunta sobre '{texto}'. Aún no tengo una respuesta exacta, pero puedo ayudarte con nuestras FAQs, productos o soporte técnico. ¿Cuál de estos te interesa explorar primero?"
-
+    # 7. Respuesta genérica
+    return "Lo siento, no entendí tu mensaje. Escribe 'menú' para volver al inicio de las opciones."
