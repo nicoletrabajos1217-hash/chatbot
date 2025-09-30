@@ -8,18 +8,19 @@ if "historial" not in st.session_state:
 if "estado" not in st.session_state:
     st.session_state.estado = {}
 
-# --- CSS para estilo tipo WhatsApp ---
+# --- CSS para estilo WhatsApp, válido en modo claro y oscuro ---
 st.markdown("""
     <style>
     .chat-container {
         display: flex;
-        flex-direction: column; /* mensajes en orden normal */
+        flex-direction: column;
         max-height: 500px;
-        overflow-y: auto; /* scroll interno */
+        overflow-y: auto;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 10px;
-        background-color: #f9f9f9;
+        background-color: #f9f9f9; /* fondo claro fijo */
+        color: #000000; /* texto negro siempre visible */
     }
     .mensaje {
         margin: 5px;
@@ -27,6 +28,7 @@ st.markdown("""
         border-radius: 20px;
         max-width: 70%;
         word-wrap: break-word;
+        color: #000000; /* texto negro en todas las burbujas */
     }
     .usuario {
         background-color: #dcf8c6; /* verde claro tipo WhatsApp */
@@ -51,7 +53,7 @@ if mensaje:
     st.session_state.historial.append(("Tú", mensaje))
     st.session_state.historial.append(("PorkiBot", respuesta))
 
-# Mostrar historial en orden normal (lo nuevo abajo)
+# Mostrar historial
 chat_container = st.container()
 with chat_container:
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
@@ -61,17 +63,3 @@ with chat_container:
         else:
             st.markdown(f"<div class='mensaje bot'><b>{emisor}:</b> {texto}</div>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
-
-# --- Autoscroll al último mensaje ---
-if st.session_state.historial:
-    last_msg = st.session_state.historial[-1][1]
-    st.markdown(f"<div style='height:1px;' id='scroll'></div>", unsafe_allow_html=True)
-    st.markdown(
-        """
-        <script>
-        var el = document.getElementById("scroll");
-        if (el) { el.scrollIntoView({behavior: "smooth", block: "end"}); }
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
